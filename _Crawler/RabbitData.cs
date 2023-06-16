@@ -1,6 +1,5 @@
 ﻿using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Channels;
+using Newtonsoft.Json;
 using _Elastic;
 using Nest;
 using RabbitMQ.Client;
@@ -28,7 +27,8 @@ namespace _Crawler
         }
         public async Task PublishesDataAsync(NewsModel message)
         {
-            var body = Encoding.UTF8.GetBytes(message.ToString());
+            var json = JsonConvert.SerializeObject(message);
+            var body = Encoding.UTF8.GetBytes(json);
 
             _channel.BasicPublish(exchange: "",
                                  routingKey: "result",
@@ -44,7 +44,9 @@ namespace _Crawler
             {
                 var body = e.Body;
                 var message = Encoding.UTF8.GetString(body.ToArray());
-                await _elasticClient.IndexDocumentAsync(message);
+                var news = JsonConvert.DeserializeObject<NewsModel>(message);
+
+                await _elasticClient.IndexDocumentAsync(news);
             };
 
             _channel.BasicConsume(queue: "result",

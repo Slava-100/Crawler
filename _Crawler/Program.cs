@@ -8,7 +8,20 @@ using RabbitMQ;
 //await cr.ParseAsync(url);
 
 //await Task.Delay(5000);
-var getNews = Elastic.GetNewsByHead("лет");
+//var getNews = Elastic.GetNewsByHead("лет");
+
+//Console.WriteLine(getNews.Hits.Count);
+
+//foreach (var hit in getNews.Hits)
+//{
+//    Console.WriteLine($"Title: {hit.Source.Title}");
+//    Console.WriteLine($"Content: {hit.Source.Head}");
+//    Console.WriteLine($"Date: {hit.Source.PublishDate}");
+//    Console.WriteLine($"Text: {hit.Source.Text}");
+//    Console.WriteLine();
+//}
+
+var getNews = Elastic.GetNewsByTitleOrText("Спорт", "году");
 
 Console.WriteLine(getNews.Hits.Count);
 

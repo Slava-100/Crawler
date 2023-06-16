@@ -33,5 +33,32 @@ namespace _Elastic
 
             return searchResponse;
         }
+        public static ISearchResponse<NewsModel> GetNewsByTitleOrText(string title, string text)
+        {
+            var settings = new ConnectionSettings(new Uri("http://localhost:9200")).DefaultIndex("news_index");
+
+            var client = new ElasticClient(settings);
+
+            var searchResponse = client.Search<NewsModel>(s => s
+                            .Query(q => q
+                                .Bool(b => b
+                                    .Should(sh => sh
+                                        .Match(m => m
+                                            .Field(f => f.Title)
+                                            .Query(title)
+                                        ),
+                                        sh => sh
+                                        .Match(m => m
+                                            .Field(f => f.Text)
+                                            .Query(text)
+                                        )
+                                    )
+                                )
+                            )
+                        );
+            return searchResponse;
+
+        }
+
     }
 }

@@ -11,7 +11,7 @@ namespace _Crawler
     public class Crawler
     {
         private HashSet<string> _visitedUrls = new HashSet<string>();
-        private RabbitData _rabbitD = new RabbitData();
+        public RabbitData _rabbitD = new RabbitData();
         private RabbitLinks _rabbitL = new RabbitLinks();
         private bool _flagStarterLinks = false;
         private static Crawler instance;
@@ -40,6 +40,7 @@ namespace _Crawler
                     await ParsesAndPublishesDataAndLinkInRabbit(url);
 
                     await _rabbitL.ConsumesLinkAsync();
+                    await _rabbitD.ConsumesDataAsync();
                 }
             }
             catch (Exception ex)

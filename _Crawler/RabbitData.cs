@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json.Nodes;
 using System.Threading.Channels;
+using _Elastic;
+using Nest;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -10,6 +12,7 @@ namespace _Crawler
     {
         private readonly IConnection _connection;
         private readonly IModel _channel;
+        public readonly IElasticClient _elasticClient;
         public RabbitData() 
         {
             var factory = new ConnectionFactory { HostName = "localhost" };
@@ -20,6 +23,8 @@ namespace _Crawler
                                  exclusive: false,
                                  autoDelete: false,
                                  arguments: null);
+
+            _elasticClient = Elastic.CreateIndex();
         }
         public async Task PublishesDataAsync(NewsModel message)
         {
@@ -34,11 +39,12 @@ namespace _Crawler
         public async Task ConsumesDataAsync()
         {
             var consumer = new EventingBasicConsumer(_channel);
-
-            consumer.Received += (sender, e) =>
+            
+            consumer.Received += async (sender, e) =>
             {
                 var body = e.Body;
                 var message = Encoding.UTF8.GetString(body.ToArray());
+                await _elasticClient.IndexDocumentAsync(message);
             };
 
             _channel.BasicConsume(queue: "result",

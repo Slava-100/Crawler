@@ -21,15 +21,15 @@ using RabbitMQ;
 //    Console.WriteLine();
 //}
 
-var getNews = Elastic.GetNewsByTitleOrText("Спорт", "году");
+//var getNews = Elastic.GetNewsByTitleOrText("Спорт", "чемпион");
 
-Console.WriteLine(getNews.Hits.Count);
+//Console.WriteLine(getNews.Hits.Count);
 
-foreach (var hit in getNews.Hits)
-{
-    Console.WriteLine($"Title: {hit.Source.Title}");
-    Console.WriteLine($"Content: {hit.Source.Head}");
-    Console.WriteLine($"Date: {hit.Source.PublishDate}");
-    Console.WriteLine($"Text: {hit.Source.Text}");
-    Console.WriteLine();
-}
+//foreach (var hit in getNews.Hits)
+//{
+//    Console.WriteLine($"Title: {hit.Source.Title}");
+//    Console.WriteLine($"Content: {hit.Source.Head}");
+//    Console.WriteLine($"Date: {hit.Source.PublishDate}");
+//    Console.WriteLine($"Text: {hit.Source.Text}");
+//    Console.WriteLine();
+//}

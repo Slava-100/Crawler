@@ -2,10 +2,13 @@
 using _Elastic;
 using Nest;
 using RabbitMQ;
+using System;
 
+Console.WriteLine();
 //string url = "https://www.1tv.ru/news";
 //Crawler cr = Crawler.GetInstance();
 //await cr.ParseAsync(url);
+
 
 //await Task.Delay(5000);
 //var getNews = Elastic.GetNewsByHead("лет");
@@ -33,3 +36,4 @@ using RabbitMQ;
 //    Console.WriteLine($"Text: {hit.Source.Text}");
 //    Console.WriteLine();
 //}
+

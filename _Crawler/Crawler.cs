@@ -40,66 +40,72 @@ namespace _Crawler
                     await ParsesAndPublishesDataAndLinkInRabbit(url);
 
                     await _rabbitL.ConsumesLinkAsync();
-                    Console.ReadLine();
                 }
             }
             catch (Exception ex)
             {
-                await _rabbitD.PublishesDataAsync(ex.Message);
+                Console.WriteLine(ex.Message);
             }
         }
-        private async Task GetHeadingsAsync(HtmlNode node)
+        private async Task GetHeadingsAsync(HtmlNode node, NewsModel news = null)
         {
             var headings = node.SelectNodes(".//article");
+
             if (headings != null && headings.Count > 0)
             {
                 foreach (var node2 in headings)
                 {
+                    NewsModel news1 = new NewsModel();
+                    if (news != null) { news1.Title = news.Title; }
                     var time = node2.SelectSingleNode(".//time");
+
                     if (time != null)
                     {
-                        _rabbitD.PublishesDataAsync(time.InnerText);
-                    }
-                    var text_h2 = node2.SelectSingleNode(".//h2");
-                    var text_h1 = node2.SelectSingleNode(".//h1");
-                    var text_h3 = node2.SelectSingleNode(".//h3/a");
-                    if (text_h1 != null)
-                    {
-                        _rabbitD.PublishesDataAsync(text_h1.InnerText);
-                    }
-                    if (text_h2 != null)
-                    {
-                        _rabbitD.PublishesDataAsync(text_h2.InnerText);
-                    }
-                    if (text_h3 != null)
-                    {
-                        _rabbitD.PublishesDataAsync(text_h3.InnerText);
-                    }
-                }
-            }
-        }
 
-        private async Task GetTextInPAndSpanAsync(HtmlDocument doc)
-        {
-            var text_div = doc.DocumentNode.SelectSingleNode(".//div[@class='editor text-block active']");
-            if (text_div != null)
-            {
-                var text_p_span = text_div.SelectNodes(".//p//span");
-                if (text_p_span != null && text_p_span.Count > 0)
-                {
-                    foreach(var node in text_p_span)
-                    {
-                        _rabbitD.PublishesDataAsync(node.InnerText);
+                        news1.PublishDate = time.InnerText;
                     }
-                }
-                else
-                {
-                    var text_p = text_div.SelectNodes(".//p");
-                    if(text_p != null && text_p.Count > 0)
-                    foreach (var node in text_p)
+
+                    var head2 = node2.SelectSingleNode(".//h2");
+                    var head1 = node2.SelectSingleNode(".//h1");
+                    var head3 = node2.SelectSingleNode(".//h3/a");
+                    var text_div = node2.SelectSingleNode(".//div[@class='text']");
+
+                    if (head1 != null)
                     {
-                            _rabbitD.PublishesDataAsync(node.InnerText);
+                        news1.Head = head1.InnerText;
+                    }
+                    if (head2 != null)
+                    {
+                        news1.Head = head2.InnerText;
+                    }
+                    if (head3 != null)
+                    {
+                        news1.Head = head3.InnerText;
+                    }
+                    if (text_div != null)
+                    {
+                        news1.Text = text_div.InnerText;
+                    }
+                    else
+                    {
+                        var text_div_p = node2.SelectSingleNode(".//div[@class='editor text-block active']");
+
+                        if (text_div_p != null)
+                        {
+                            var text_p = text_div_p.SelectNodes(".//p");
+
+                            if (text_p != null && text_p.Count > 0)
+                            {
+                                foreach (var node3 in text_p)
+                                {
+
+                                    news1.Text += node3.InnerText;
+                                }
+                            }
                         }
+                    }
+
+                    _rabbitD.PublishesDataAsync(news1);
                 }
             }
         }
@@ -116,19 +122,19 @@ namespace _Crawler
             {
                 foreach (var node1 in sections)
                 {
+                    NewsModel news = new NewsModel();
                     var text1 = node1.SelectSingleNode(".//h2");
                     if (text1 != null)
                     {
-                        _rabbitD.PublishesDataAsync(text1.InnerText);
+                        news.Title = text1.InnerText;
                     }
-                    await GetHeadingsAsync(node1);
+                    await GetHeadingsAsync(node1, news);
                 }
             }
             else
             {
                 await GetHeadingsAsync(doc.DocumentNode);
             }
-            await GetTextInPAndSpanAsync(doc);
 
             if (!_flagStarterLinks)
             {

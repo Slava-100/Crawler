@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Channels;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -20,9 +21,9 @@ namespace _Crawler
                                  autoDelete: false,
                                  arguments: null);
         }
-        public async Task PublishesDataAsync(string message)
+        public async Task PublishesDataAsync(NewsModel message)
         {
-            var body = Encoding.UTF8.GetBytes(message);
+            var body = Encoding.UTF8.GetBytes(message.ToString());
 
             _channel.BasicPublish(exchange: "",
                                  routingKey: "result",
